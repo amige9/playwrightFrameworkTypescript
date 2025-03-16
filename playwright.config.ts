@@ -22,16 +22,27 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['allure-playwright', {
+      detail: true,
+      outputFolder: 'allure-results',
+      suiteTitle: false
+    }],
+    ['line'],
+    ['html', {
+      open: 'on-failure'
+    }]
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     // baseURL: process.env.BASEURL,
     browserName : 'chromium',
     headless : false,
     screenshot : 'on',
-    trace : 'on', //off,on
+    trace : 'retain-on-failure', //off,on
     video: 'on',
   },
+  globalSetup: "utils/globalSetup.ts"
 
   /* Configure projects for major browsers */
   // projects: [

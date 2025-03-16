@@ -1,9 +1,16 @@
 import { test, expect, Browser, Page, Locator, BrowserContext } from '@playwright/test';
-import { webkit, chromium, firefox } from 'playwright';
 import POManager from '../pageObject/POManager';
+import ENV from '../utils/env';
+const dataset = JSON.parse(JSON.stringify(require('../testData/loginData.json')));
 
 
-test('Login Test using Page Object', async({page}) =>{
+
+test('Login Test using Page Object', async ({ page }) => {
+    // Validate environment variables before using them
+    if (!ENV.EMAIL || !ENV.PASSWORD) {
+        throw new Error('EMAIL or PASSWORD environment variables are not set');
+    }
+
     // Initialize Page Object Manager
     const poManager = new POManager(page);
 
@@ -12,21 +19,41 @@ test('Login Test using Page Object', async({page}) =>{
 
     await loginPage.goTo();
 
-    await loginPage.login("olams99@gmail.com", "bobolets")
+    await loginPage.login(ENV.EMAIL, ENV.PASSWORD)
 
-    await loginPage.verifyLoginIsSuccessful("My Account")
+    await loginPage.verifyLoginIsSuccessful(dataset[0].pageTitle)
 
     await page.close();
 
+})
 
+test('Invalid Login Test using Page Object', async ({ page }) => {
+    // Validate environment variables before using them
+    if (!ENV.EMAIL || !ENV.PASSWORD) {
+        throw new Error('EMAIL or PASSWORD environment variables are not set');
+    }
+
+    // Initialize Page Object Manager
+    const poManager = new POManager(page);
+
+    // Initialize individual Page Objects
+    const loginPage = poManager.getLoginPage();
+
+    await loginPage.goTo();
+
+    await loginPage.login(ENV.EMAIL, ENV.PASSWORD)
+
+    await loginPage.verifyLoginIsSuccessful(dataset[1].pageTitle)
+
+    await page.close();
 
 })
 
 // test('login test', async({})=>{
-//     // browser 1 
+//     // browser 1
 //     const browser:Browser = await chromium.launch({headless:false})
 //     // You use browswerContext when you want to interact with more than one pages
-//     // const browserContext:BrowserContext = await browser.newContext(); 
+//     // const browserContext:BrowserContext = await browser.newContext();
 //     // const page:Page = await browserContext.newPage();
 //     const page:Page = await browser.newPage();
 //     await page.goto("https://naveenautomationlabs.com/opencart/index.php?route=account/login");
