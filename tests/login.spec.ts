@@ -1,15 +1,25 @@
 import { test, expect, Browser, Page, Locator, BrowserContext } from '@playwright/test';
 import POManager from '../pageObject/POManager';
 import ENV from '../utils/env';
+import { createLogger } from '../utils/logger/logger'; import fs from 'fs';
+import path from 'path';
 const dataset = JSON.parse(JSON.stringify(require('../testData/loginData.json')));
 
+// Create logs directory if it doesn't exist
+const logDir = path.join(process.cwd(), 'logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
 
+// Create a logger specifically for this spec file
+const logger = createLogger('login');
 
-test('Login Test using Page Object', async ({ page }) => {
+test('should login successfully', async ({ page }) => {
     // Validate environment variables before using them
     if (!ENV.EMAIL || !ENV.PASSWORD) {
         throw new Error('EMAIL or PASSWORD environment variables are not set');
     }
+    logger.info('Starting login test');
 
     // Initialize Page Object Manager
     const poManager = new POManager(page);
@@ -17,12 +27,14 @@ test('Login Test using Page Object', async ({ page }) => {
     // Initialize individual Page Objects
     const loginPage = poManager.getLoginPage();
 
+    // Execute test steps
     await loginPage.goTo();
-
     await loginPage.login(ENV.EMAIL, ENV.PASSWORD)
 
+    // Assert successful login
     await loginPage.verifyLoginIsSuccessful(dataset[0].pageTitle)
 
+    // page teardown
     await page.close();
 
 })
@@ -33,18 +45,22 @@ test('Invalid Login Test using Page Object', async ({ page }) => {
         throw new Error('EMAIL or PASSWORD environment variables are not set');
     }
 
+    logger.info('Starting invalid credentials test');
+
     // Initialize Page Object Manager
     const poManager = new POManager(page);
 
     // Initialize individual Page Objects
     const loginPage = poManager.getLoginPage();
 
+    // Execute test steps
     await loginPage.goTo();
-
     await loginPage.login(ENV.EMAIL, ENV.PASSWORD)
 
+    // Asset unsuccessful login
     await loginPage.verifyLoginIsSuccessful(dataset[1].pageTitle)
 
+    // page teardown
     await page.close();
 
 })

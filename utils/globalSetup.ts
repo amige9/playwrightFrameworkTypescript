@@ -1,20 +1,11 @@
 const { FullConfig } = require('@playwright/test');
 
 const dotenv = require('dotenv');
-
-// async function globalSetup(FullConfig){
-
-//     if(process.env.test_env){
-//         dotenv.config({
-//             path: `tests/helper/env/.env.${process.env.test_env}`,
-//             override: true
-//         })
-//     }
-// }
+ 
 
 async function globalSetup(config:any) {
     const testEnv = process.env.test_env || 'test'; // Default to 'test' if not specified
-    const envPath = `tests/helper/env/.env.${testEnv}`;
+    const envPath = `utils/env/.env.${testEnv}`;
 
     console.log(`Loading environment variables from: ${envPath}`); // Debugging log
 
